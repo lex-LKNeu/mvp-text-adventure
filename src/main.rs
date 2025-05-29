@@ -4,7 +4,22 @@ struct WorldState {
     quit: bool,
 } // TODO: actually populate this
 
-type Command = Box<dyn Fn(&mut WorldState) -> String>;
+#[derive(PartialEq, Eq, Hash)]
+enum Command {
+    Go(Direction),
+    Quit,
+    Xyzzy,
+    Unknown,
+    Empty,
+}
+
+#[derive(PartialEq, Eq, Hash)]
+enum Direction {
+    North,
+    South,
+    East,
+    West,
+}
 
 fn main() -> io::Result<()> {
     let mut world_state = WorldState { quit: false };
@@ -15,7 +30,7 @@ fn main() -> io::Result<()> {
         // run it through a parser
         let command: Command = parse(&input);
         // then operate on the world with the resulting closure
-        let result = command(&mut world_state);
+        let result = run(command, &mut world_state);
         // and print back the results
         println!("{}", result);
         if world_state.quit {
@@ -25,24 +40,53 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn parse(input: &str) -> Box<dyn Fn(&mut WorldState) -> String> {
+fn parse(input: &str) -> Command {
     // break up input into words
     let words: Vec<&str> = input.split_whitespace().collect();
 
     if words.is_empty() {
-        return Box::new(|_| String::from("..."));
+        return Command::Empty;
     }
 
     // check words against a database of commands or something?
     // one big match, for now
     let command: Command = match words[0] {
-        "xyzzy" => Box::new(|_: &mut WorldState| String::from("Very funny.")),
-        "quit" => Box::new(|ws: &mut WorldState| {
-            ws.quit = true;
-            String::from("Goodbye!")
-        }),
-        _ => Box::new(|_: &mut WorldState| String::from("I don't know what that means.")),
+        "east" => Command::Go(Direction::East),
+        "west" => Command::Go(Direction::West),
+        "north" => Command::Go(Direction::North),
+        "south" => Command::Go(Direction::South),
+        "xyzzy" => Command::Xyzzy,
+        "quit" => Command::Quit,
+        _ => Command::Unknown,
     };
 
+    // TODO: how is this parser going to handle two-word commands?
+
     command
+}
+
+fn run(command: Command, ws: &mut WorldState) -> String {
+    match command {
+        Command::Go(direction) => move_pc(direction, ws),
+        Command::Xyzzy => "Very funny.".to_string(),
+        Command::Empty => "...".to_string(),
+        Command::Quit => {
+            ws.quit = true;
+            "Goodbye!".to_string()
+        }
+        Command::Unknown => "Unknown command.".to_string(),
+    }
+}
+
+fn move_pc(direction: Direction, ws: &mut WorldState) -> String {
+    let direction_name = match direction {
+        Direction::North => "north",
+        Direction::South => "south",
+        Direction::East => "east",
+        Direction::West => "west",
+    };
+    format!(
+        "You go {}, allegedly. (I haven't actually implemented this yet.)",
+        direction_name
+    )
 }
