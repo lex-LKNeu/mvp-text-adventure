@@ -19,6 +19,7 @@ enum Direction {
     South,
     East,
     West,
+    Unknown,
 }
 
 fn main() -> io::Result<()> {
@@ -55,6 +56,19 @@ fn parse(input: &str) -> Command {
         "west" => Command::Go(Direction::West),
         "north" => Command::Go(Direction::North),
         "south" => Command::Go(Direction::South),
+        "go" => {
+            if words.len() < 2 {
+                Command::Go(Direction::Unknown)
+            } else {
+                match words[1] {
+                    "east" => Command::Go(Direction::East),
+                    "west" => Command::Go(Direction::West),
+                    "north" => Command::Go(Direction::North),
+                    "south" => Command::Go(Direction::South),
+                    _ => Command::Go(Direction::Unknown),
+                }
+            }
+        }
         "xyzzy" => Command::Xyzzy,
         "quit" => Command::Quit,
         _ => Command::Unknown,
@@ -80,6 +94,9 @@ fn run(command: Command, ws: &mut WorldState) -> String {
 
 fn move_pc(direction: Direction, ws: &mut WorldState) -> String {
     let direction_name = match direction {
+        Direction::Unknown => {
+            return "Go where?".to_string();
+        }
         Direction::North => "north",
         Direction::South => "south",
         Direction::East => "east",
