@@ -62,3 +62,15 @@ I'll worry about the abbreviations later.
 - `unlock <door>`
 
 I will *not* add abbreviations yet. One task at a time.
+
+---
+
+Backed up! `parse()` takes a string, but does *not* return a function; instead, it returns a `Command` enum. This gives me some extra flexibility in doing what in FP would be monad-like things (specifically command history), and embeds a contract with myself into the type system: if I put in a new command, the compiler will show me all the places where I need to handle the new variant.
+
+If I still have weird one-off behavior for something, I can still throw in a closure and run it.
+
+---
+
+Have a stupid problem: I have more than one kind of item, they share a lot of features, and I forgot to use traits.
+
+So now I gotta double back and re-implement traits for a couple of things. (Specifically, pull `Item` into a trait and make `BasicItem` and `Key` implementations.)

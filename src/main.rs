@@ -1,26 +1,8 @@
 use std::io;
 
-struct WorldState {
-    quit: bool,
-} // TODO: actually populate this
-
-#[derive(PartialEq, Eq, Hash)]
-enum Command {
-    Go(Direction),
-    Quit,
-    Xyzzy,
-    Unknown,
-    Empty,
-}
-
-#[derive(PartialEq, Eq, Hash)]
-enum Direction {
-    North,
-    South,
-    East,
-    West,
-    Unknown,
-}
+mod types;
+// I'll prune this once I know what I'm actually using:
+use types::{WorldState, Command, Direction, ItemTrait, Item, Key, Room, DoorState, Door};
 
 fn main() -> io::Result<()> {
     let mut world_state = WorldState { quit: false };
