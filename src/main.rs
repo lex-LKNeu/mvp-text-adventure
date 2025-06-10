@@ -8,13 +8,9 @@ fn main() -> io::Result<()> {
     let mut world_state = WorldState { quit: false };
     loop {
         let mut input = String::new();
-        // take a line of input then extract the last word from it
         io::stdin().read_line(&mut input)?;
-        // run it through a parser
         let command: Command = parse(&input);
-        // then operate on the world with the resulting closure
         let result = run(command, &mut world_state);
-        // and print back the results
         println!("{}", result);
         if world_state.quit {
             break;
@@ -24,15 +20,12 @@ fn main() -> io::Result<()> {
 }
 
 fn parse(input: &str) -> Command {
-    // break up input into words
     let words: Vec<&str> = input.split_whitespace().collect();
 
     if words.is_empty() {
         return Command::Empty;
     }
 
-    // check words against a database of commands or something?
-    // one big match, for now
     let command: Command = match words[0] {
         "east" => Command::Go(Direction::East),
         "west" => Command::Go(Direction::West),
@@ -55,8 +48,6 @@ fn parse(input: &str) -> Command {
         "quit" => Command::Quit,
         _ => Command::Unknown,
     };
-
-    // TODO: how is this parser going to handle two-word commands?
 
     command
 }
