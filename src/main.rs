@@ -1,11 +1,14 @@
+#![allow(dead_code)] // TEMP
+
 use std::io;
 
 mod types;
+
 // I'll prune this once I know what I'm actually using:
-use types::{WorldState, Command, Direction, ItemTrait, Item, Key, Room, DoorState, Door};
+use types::{WorldState, Command, Direction, Item, BasicItem, Key, Room, DoorState, Door, init_world};
 
 fn main() -> io::Result<()> {
-    let mut world_state = WorldState { quit: false };
+    let mut world_state = init_world();
     loop {
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;

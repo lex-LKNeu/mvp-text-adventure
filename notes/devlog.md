@@ -74,3 +74,23 @@ If I still have weird one-off behavior for something, I can still throw in a clo
 Have a stupid problem: I have more than one kind of item, they share a lot of features, and I forgot to use traits.
 
 So now I gotta double back and re-implement traits for a couple of things. (Specifically, pull `Item` into a trait and make `BasicItem` and `Key` implementations.)
+
+---
+
+Time to implement rooms and doors so the PC can actually move around. (I'm going to hold off on items until this works.)
+
+Current plan:
+
+- make all the rooms with empty door lists
+- make all the doors
+- have a helper function populate the door lists to match the defined doors
+
+This keeps me from having to define connections between rooms and doors twice.
+
+I had the idea of keeping all the rooms in one big `Vec` and making it a field of the `WorldState`, and so far I'm going with it, but I have one problem: now I can't store a reference to one of the rooms as another field of the `WorldState` struct.
+
+After some poking around (and asking ChatGPT) I found a solution: use indices instead of references. One small problem: if I just have a bunch of `usize`s around, future me is going to forget why I'm using them and try to refactor my way into a wall. So I'm using a type alias: `RoomID`.
+
+---
+
+Current problem: I'm trying to put the world together (four rooms, three doors, one key, one lock).
