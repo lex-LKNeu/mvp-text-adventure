@@ -94,3 +94,58 @@ After some poking around (and asking ChatGPT) I found a solution: use indices in
 ---
 
 Current problem: I'm trying to put the world together (four rooms, three doors, one key, one lock).
+
+> This ended up being pretty boring so I abandoned the write-up.
+
+---
+
+Next thing to do: let the PC *move*. I have a `move_pc` function, but all it does is spit back a response that acknowledges the player's direction of movement but does nothing else:
+
+```rust
+fn move_pc(direction: Direction, ws: &mut WorldState) -> String {
+    let direction_name = match direction {
+        Direction::Unknown => {
+            return "Go where?".to_string();
+        }
+        Direction::North => "north",
+        Direction::South => "south",
+        Direction::East => "east",
+        Direction::West => "west",
+    };
+    format!(
+        "You go {}, allegedly. (I haven't actually implemented this yet.)", // TODO
+        direction_name
+    )
+}
+```
+
+I'd like the room's description to print when the PC moves into it, at *least* for the first time. That's easy enough to track, though: I just added a `visited` field to the `Room` struct, set the bedroom's to `true` and everyone else gets `false`.
+
+Now I need to write a function that:
+
+- uses the direction given to check the current room's adjacents
+- sees if there's a door that way, and if so, if the door's unlocked and open
+- if so, move the PC to the other room and update the other room's `visited` field if needed
+- return relevant message
+
+... though I might change it so the states are just locked and unlocked; having the door open vs closed doesn't really matter for gameplay.
+
+Update an hour later: this is rapidly turning into a mess of spaghetti, and I'm wondering if the way I set up the Door struct to implement one-way and asymmetrical doors was a mistake. I was probably thinking too far ahead for the problem.
+
+I ended up having to use this horrible, horrible `match` statement:
+
+```rust
+let new_room_id = match door.directions.1 {
+    None => door.endpoints.1,
+    Some(direction) if door.endpoints.0 == current_room.id => door.endpoints.1,
+    Some(direction) => door.endpoints.0,
+};
+```
+
+to figure out which way to go through the doors.
+
+Except I don't even need to do that, because I can just compare the endpoints: if `.0` is the current one, go to `.1`; otherwise, go to `.0`. (Note: this does allow doors that lead back to the start. I may exploit this later.)
+
+Then in testing I found out that I had accidentally input the map upside-down, so I had to edit that. It didn't really matter --- I'm not doing any Crazy Tricks of any sort with the geography, this being four rooms and three doors --- but I wanted to be sure that I expressed my intentions, instead of just retconning a mistake as "totally my intention, trust me" when the fix was pretty trivial.
+
+You know, I'm writing this to be a learning experience, and I sure am doing a lot of learning!
